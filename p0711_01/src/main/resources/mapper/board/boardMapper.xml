@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.dao.BoardDao">
+<!-- 게시판 리스트 -->
+  <select id="selectList" resultType="com.java.dto.BoardDto">
+    <!--  select * from board01 order by bno desc -->
+    select * from board01 order by bgroup desc, bstep asc <!-- 답글 달면  -->
+  </select>
+
+<!-- 게시글 1개 가져오기 -->
+  <select id="selectOne" resultType="com.java.dto.BoardDto">
+    select * from board01 where bno=#{bno}
+  </select>
+
+<!-- 게시글 저장 -->
+  <insert id="insertBoard">
+    insert into board01 values (board_seq.nextval,#{id},#{btitle},#{bcontent},sysdate,board_seq.currval,0,0,0,#{bfile})
+  </insert>
+
+<!-- 조회수 증가 -->
+  <update id="updateBhit">
+  	update board01 set bhit = bhit+1 where bno=#{bno}
+  </update>
+
+<!-- 게시글 삭제 -->
+  <delete id="deleteBoard">
+  	delete board01 where bno=#{bno}
+  </delete>
+
+<!-- 게시글 수정 -->
+  <update id="updateBoard">
+  	update board01 set btitle=#{btitle}, bcontent=#{bcontent}, bdate=sysdate, bfile=#{bfile}
+  	where bno=#{bno} 
+  	<!-- and id=#{id} 마지막에 이거 넣어주면 id 확인 절차 추가  --> 
+  </update>
+  
+<!-- 답글 저장 -->
+  <insert id="insertReply">
+	insert into board01 values (board_seq.nextval,#{id},#{btitle},#{bcontent},sysdate,#{bgroup},#{bstep}+1,#{bindent}+1,0,#{bfile})
+  </insert> <!-- bgoup : 답글은 부모의 그룹을 따르므로 board_seq.currval 사용x. 또한 답글 시 들여쓰기가 되므로 bindent -->
+  
+<!-- bstep 1 증가 -->
+  <update id="updateBstep">
+  	update board01 set bstep = bstep+1 where bgroup=#{bgroup} and bstep>#{bstep}
+  </update>
+
+</mapper>
